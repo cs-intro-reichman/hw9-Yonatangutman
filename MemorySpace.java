@@ -58,7 +58,22 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
-		//// Replace the following statement with your code
+		ListIterator iterator = freeList.iterator();
+		while (iterator.hasNext()) {
+			MemoryBlock freeBlock = iterator.next();
+
+			if (freeBlock.length >= length) { 
+				MemoryBlock allocated = new MemoryBlock(freeBlock.baseAddress, length);
+				allocatedList.addLast(allocated);
+
+				freeBlock.baseAddress += length;
+				freeBlock.length -= length;
+				if (freeBlock.length == 0) {
+					freeList.remove(freeBlock);
+				}
+				return allocated.baseAddress;
+			}
+		}
 		return -1;
 	}
 
@@ -71,7 +86,20 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if (allocatedList.getSize() == 0) {
+            throw new IllegalArgumentException("index must be between 0 and size");
+        }
+        
+		ListIterator iterator = allocatedList.iterator();
+		while (iterator.hasNext()) {
+			MemoryBlock allocated = iterator.next();
+
+			if (address == allocated.baseAddress) {
+				allocatedList.remove(allocated);
+				freeList.addLast(allocated);
+				return;
+            }
+        }
 	}
 	
 	/**
@@ -88,7 +116,23 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		/// TODO: Implement defrag test
-		//// Write your code here
+		ListIterator iteratorA = freeList.iterator();
+			
+		while (iteratorA.hasNext()) {
+			MemoryBlock freeBlock = iteratorA.next();
+			ListIterator iteratorB = freeList.iterator();
+			int newAddress = freeBlock.baseAddress + freeBlock.length;
+	
+		while (iteratorB.hasNext()) {
+			MemoryBlock compareFreeBlock = iteratorB.next();
+				if (compareFreeBlock.baseAddress == newAddress) {
+					System.out.println("merging " + freeBlock + " with " + compareFreeBlock);
+					freeBlock.length += compareFreeBlock.length;
+					freeList.remove(compareFreeBlock);
+					iteratorA = freeList.iterator();
+	
+				}
+		}
+		}
 	}
 }
